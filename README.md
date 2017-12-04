@@ -1,4 +1,4 @@
-# azure-auth-filter
+# azure-auth-filter-alpha
 
 JAX-RS Azure auth filter.
 
