@@ -37,8 +37,7 @@ public class AzureAuthFilter implements ContainerRequestFilter {
     private final String clientId;
     private final String tenantId;
 
-    private final TypeReference STRING_MAP = new TypeReference<Map<String, Object>>() {
-    };
+    private final TypeReference STRING_MAP = new TypeReference<Map<String, Object>>() {};
 
     public AzureAuthFilter(String clientId, String tenantId) {
         this.clientId = clientId;
