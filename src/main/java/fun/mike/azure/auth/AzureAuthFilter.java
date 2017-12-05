@@ -52,23 +52,23 @@ public class AzureAuthFilter implements ContainerRequestFilter {
         TokenValidationResult result = validateToken(token, jwksUrl);
 
         if (result.failed()) {
-            throw new InternalServerErrorException(result.getMessage());
+            throw internalServerError(result.getMessage());
         }
 
         if (!result.valid()) {
-            unauthorized(result.getMessage());
+            throw unauthorized(result.getMessage());
         }
     }
 
     private String getBearerTokenFromAuthorizationHeader(String header) {
         if (header == null) {
-            unauthorized("No \"Authorization\" header present.");
+            throw unauthorized("No \"Authorization\" header present.");
         }
 
         List<String> parts = Arrays.asList(header.split(" "));
 
         if (parts.size() != 2) {
-            unauthorized("Malformed \"Authorization\" header.");
+            throw unauthorized("Malformed \"Authorization\" header.");
         }
 
         String scheme = parts.get(0);
@@ -76,7 +76,7 @@ public class AzureAuthFilter implements ContainerRequestFilter {
         if (!"Bearer".equals(scheme)) {
             String message = String.format("Unexpected authentication scheme %s in the \"Authorization\" header; expected \"Bearer\".",
                     scheme);
-            unauthorized(message);
+            throw unauthorized(message);
         }
 
         return parts.get(1);
@@ -92,7 +92,7 @@ public class AzureAuthFilter implements ContainerRequestFilter {
         } catch (MalformedURLException ex) {
             String message = String.format("OpenID provider metadata URL \"%s\" is malformed.",
                     metadataPath);
-            throw new InternalServerErrorException(message);
+            throw internalServerError(message);
         }
 
         Map<String, Object> metadata = null;
@@ -101,16 +101,17 @@ public class AzureAuthFilter implements ContainerRequestFilter {
         } catch (IOException ex) {
             String message = String.format("Failed to parse OpenID provider metadata from \"%s\".",
                     metadataURL);
-            throw new InternalServerErrorException(message);
+            throw internalServerError(message);
         }
 
         if (metadata.containsKey("jwks_uri")) {
             return (String) metadata.get("jwks_uri");
         }
 
+
         String message = String.format("No jwks_uri property present in OpenID provider metadata retrieved from \"%s\".",
-                metadataPath);
-        throw new InternalServerErrorException();
+                                       metadataPath);
+        throw internalServerError(message);
     }
 
     private TokenValidationResult validateToken(String token, String jwksUrl) {
@@ -173,7 +174,11 @@ public class AzureAuthFilter implements ContainerRequestFilter {
         }
     }
 
-    private void unauthorized(String message) {
-        throw new NotAuthorizedException(message);
+    private InternalServerErrorException internalServerError(String message) {
+        return new InternalServerErrorException(message);
+    }
+
+    private NotAuthorizedException unauthorized(String message) {
+        return new NotAuthorizedException(message);
     }
 }
