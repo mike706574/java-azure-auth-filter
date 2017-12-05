@@ -9,7 +9,7 @@
 
   <groupId>fun.mike</groupId>
   <artifactId>azure-auth-filter-alpha</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>azure-auth-filter</name>
@@ -45,7 +45,7 @@
     <connection>scm:git:https://github.com/mike706574/java-azure-auth-filter.git</connection>
     <developerConnection>scm:git:https://github.com/mike706574/java-azure-auth-filter.git</developerConnection>
     <url>http://github.com/mike706574/java-azure-auth-filter/tree/master</url>
-    <tag>azure-auth-filter-alpha-0.0.1</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <developers>
