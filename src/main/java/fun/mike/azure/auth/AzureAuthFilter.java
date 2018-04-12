@@ -1,6 +1,8 @@
 package fun.mike.azure.auth;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -19,10 +21,12 @@ public class AzureAuthFilter implements ContainerRequestFilter {
 
     private final String tenantId;
     private final String clientId;
+    private final Pattern pattern;
 
-    public AzureAuthFilter(String tenantId, String clientId) {
+    public AzureAuthFilter(String tenantId, String clientId, String pattern) {
         this.tenantId = tenantId;
         this.clientId = clientId;
+        this.pattern = Pattern.compile(pattern);
     }
 
     public void filter(ContainerRequestContext ctx) throws IOException {
@@ -31,7 +35,9 @@ public class AzureAuthFilter implements ContainerRequestFilter {
         String label = String.format("\"%s %s\"", method, path);
 
         if (method.equals("OPTIONS")) {
-            log.trace(label + " Skipping request authentication.");
+            log.trace(label + " Skipping authentication for OPTIONS request.");
+        } else if(!pattern.matcher(path).matches()) {
+            log.trace(label + " Skipping authentication for unmatched path.");
         } else {
             log.trace(label + " Authenticating request.");
 
@@ -56,6 +62,7 @@ public class AzureAuthFilter implements ContainerRequestFilter {
             }
 
             log.trace(label + " Authenticated request.");
+            ctx.setProperty("claims", result.getClaims());
         }
     }
 }
