@@ -1,7 +1,9 @@
 package fun.mike.azure.auth;
 
-import java.io.IOException;
-import java.util.regex.Matcher;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAuthorizedException;
@@ -9,6 +11,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
 import org.slf4j.Logger;
@@ -29,14 +32,14 @@ public class AzureAuthFilter implements ContainerRequestFilter {
         this.pattern = Pattern.compile(pattern);
     }
 
-    public void filter(ContainerRequestContext ctx) throws IOException {
+    public void filter(ContainerRequestContext ctx) {
         String method = ctx.getMethod();
         String path = ctx.getUriInfo().getRequestUri().getPath();
         String label = String.format("\"%s %s\"", method, path);
 
         if (method.equals("OPTIONS")) {
             log.trace(label + " Skipping authentication for OPTIONS request.");
-        } else if(!pattern.matcher(path).matches()) {
+        } else if (!pattern.matcher(path).matches()) {
             log.trace(label + " Skipping authentication for unmatched path.");
         } else {
             log.trace(label + " Authenticating request.");
@@ -62,7 +65,19 @@ public class AzureAuthFilter implements ContainerRequestFilter {
             }
 
             log.trace(label + " Authenticated request.");
-            ctx.setProperty("claims", result.getClaims());
+
+            Map<String, Object> claims = result.getClaims();
+
+            String name = (String)claims.get("name");
+
+            @SuppressWarnings("unchecked")
+            Set<String> roles = new HashSet<>((Collection<String>)claims.get("roles"));
+
+            SecurityContext securityContext =
+                new SimpleSecurityContext(ctx.getSecurityContext(),
+                                          name,
+                                          roles);
+            ctx.setSecurityContext(securityContext);
         }
     }
 }
