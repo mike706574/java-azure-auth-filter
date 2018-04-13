@@ -1,6 +1,6 @@
 # azure-auth-filter-alpha
 
-JAX-RS Azure auth filter.
+Jersey Azure auth filter.
 
 ## Copyright and License
 
