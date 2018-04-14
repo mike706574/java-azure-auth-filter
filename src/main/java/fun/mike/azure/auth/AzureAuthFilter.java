@@ -68,10 +68,21 @@ public class AzureAuthFilter implements ContainerRequestFilter {
 
             Map<String, Object> claims = result.getClaims();
 
-            String name = (String)claims.get("name");
+            String name = null;
 
-            @SuppressWarnings("unchecked")
-            Set<String> roles = new HashSet<>((Collection<String>)claims.get("roles"));
+            if(claims.containsKey("name")) {
+                name = (String)claims.get("name");
+            }
+
+            Collection<String> roles;
+
+            if(claims.containsKey("roles")) {
+                @SuppressWarnings("unchecked")
+                Collection<String> castedRoles = (Collection<String>)claims.get("roles");
+                roles = castedRoles;
+            } else {
+                roles = new HashSet<>();
+            }
 
             SecurityContext securityContext =
                 new SimpleSecurityContext(ctx.getSecurityContext(),
