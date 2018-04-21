@@ -8,7 +8,8 @@ Jersey Azure auth filter.
 ## Usage
 
 With Dropwizard:
-```
+
+```java
 final String tenantId = "c834c34e-bbd3-4ea1-c2c2-51daeff91aa32";
 final String clientId = "ae33c32e-d2f2-4992-a4b2-51d03e7c8677";
 
