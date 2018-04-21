@@ -5,8 +5,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import javax.annotation.Priority;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 @Provider
 @PreMatching
+@Priority(Priorities.AUTHENTICATION)
 public class AzureAuthFilter implements ContainerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(AzureAuthFilter.class);
 
@@ -74,6 +77,8 @@ public class AzureAuthFilter implements ContainerRequestFilter {
                 name = (String)claims.get("name");
             }
 
+            log.trace(label + "Name: " + name);
+
             Collection<String> roles;
 
             if(claims.containsKey("roles")) {
@@ -83,6 +88,8 @@ public class AzureAuthFilter implements ContainerRequestFilter {
             } else {
                 roles = new HashSet<>();
             }
+
+            log.trace(label + "Roles: " + roles);
 
             SecurityContext securityContext =
                 new SimpleSecurityContext(ctx.getSecurityContext(),
