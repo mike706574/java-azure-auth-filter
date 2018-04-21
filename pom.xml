@@ -71,7 +71,7 @@
     <dependency>
       <groupId>fun.mike</groupId>
       <artifactId>azure-auth-alpha</artifactId>
-      <version>0.0.6</version>
+      <version>0.0.7</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
