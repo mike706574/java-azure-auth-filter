@@ -29,6 +29,10 @@ public class AzureAuthFilter implements ContainerRequestFilter {
     private final String clientId;
     private final Pattern pattern;
 
+    public AzureAuthFilter(String tenantId, String clientId) {
+        this(tenantId, clientId, null);
+    }
+
     public AzureAuthFilter(String tenantId, String clientId, String pattern) {
         this.tenantId = tenantId;
         this.clientId = clientId;
@@ -42,7 +46,7 @@ public class AzureAuthFilter implements ContainerRequestFilter {
 
         if (method.equals("OPTIONS")) {
             log.trace(label + " Skipping authentication for OPTIONS request.");
-        } else if (!pattern.matcher(path).matches()) {
+        } else if (pattern != null && !pattern.matcher(path).matches()) {
             log.trace(label + " Skipping authentication for unmatched path.");
         } else {
             log.trace(label + " Authenticating request.");
