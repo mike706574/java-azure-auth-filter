@@ -3,7 +3,6 @@ package fun.mike.azure.auth.alpha;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 import javax.annotation.Priority;
 import javax.ws.rs.InternalServerErrorException;
@@ -25,18 +24,16 @@ import org.slf4j.LoggerFactory;
 public class AzureAuthFilter implements ContainerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(AzureAuthFilter.class);
 
-    private final String tenantId;
-    private final String clientId;
-    private final Pattern pattern;
+    private final Authenticator authenticator;
+    private final Pattern pathPattern;
 
-    public AzureAuthFilter(String tenantId, String clientId) {
-        this(tenantId, clientId, null);
+    public AzureAuthFilter(Authenticator authenticator) {
+        this(authenticator, null);
     }
 
-    public AzureAuthFilter(String tenantId, String clientId, String pattern) {
-        this.tenantId = tenantId;
-        this.clientId = clientId;
-        this.pattern = Pattern.compile(pattern);
+    public AzureAuthFilter(Authenticator authenticator, String pathPattern) {
+        this.authenticator = authenticator;
+        this.pathPattern = Pattern.compile(pathPattern);
     }
 
     public void filter(ContainerRequestContext ctx) {
@@ -46,16 +43,14 @@ public class AzureAuthFilter implements ContainerRequestFilter {
 
         if (method.equals("OPTIONS")) {
             log.trace(label + " Skipping authentication for OPTIONS request.");
-        } else if (pattern != null && !pattern.matcher(path).matches()) {
+        } else if (pathPattern != null && !pathPattern.matcher(path).matches()) {
             log.trace(label + " Skipping authentication for unmatched path.");
         } else {
             log.trace(label + " Authenticating request.");
 
             String header = ctx.getHeaderString(HttpHeaders.AUTHORIZATION);
 
-            AuthenticationResult result = new Authenticator(tenantId,
-                                                            clientId)
-                    .authenticate(header);
+            AuthenticationResult result = authenticator.authenticate(header);
 
             if (result.failed()) {
                 log.error(String.format("%s Request authentication error: %s",

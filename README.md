@@ -3,7 +3,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/fun.mike/azure-auth-filter-alpha/badge.svg)](https://maven-badges.herokuapp.com/maven-central/fun.mike/azure-auth-filter-alpha)
 [![Javadocs](https://www.javadoc.io/badge/fun.mike/azure-auth-filter-alpha.svg)](https://www.javadoc.io/doc/fun.mike/azure-auth-filter-alpha)
 
-Jersey Azure auth filter.
+JAX-RS Azure OpenID Connect auth filter.
 
 ## Usage
 
@@ -17,10 +17,7 @@ import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 final String tenantId = "c834c34e-bbd3-4ea1-c2c2-51daeff91aa32";
 final String clientId = "ae33c32e-d2f2-4992-a4b2-51d03e7c8677";
 
-AzureAuthFilter azureAuthFilter =
-    new AzureAuthFilter(tenantId,
-                        clientId,
-                        "/api.*");
+AzureAuthFilter azureAuthFilter = AzureAuthFilterFactory.simple(tenantId, clientId);
 
 environment.jersey().register(new AuthDynamicFeature(azureAuthFilter));
 environment.jersey().register(RolesAllowedDynamicFeature.class);
