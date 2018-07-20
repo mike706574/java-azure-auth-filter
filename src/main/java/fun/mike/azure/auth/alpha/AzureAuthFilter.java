@@ -76,7 +76,7 @@ public class AzureAuthFilter implements ContainerRequestFilter {
                 name = (String)claims.get("name");
             }
 
-            log.trace(label + "Name: " + name);
+            log.trace(label + " Name: " + name);
 
             Collection<String> roles;
 
@@ -88,7 +88,7 @@ public class AzureAuthFilter implements ContainerRequestFilter {
                 roles = new HashSet<>();
             }
 
-            log.trace(label + "Roles: " + roles);
+            log.trace(label + " Roles: " + roles);
 
             SecurityContext securityContext =
                 new SimpleSecurityContext(ctx.getSecurityContext(),
